@@ -6,15 +6,43 @@ Submission for Course5 Week2
 ```r
 activity <- read.csv("activity.csv", stringsAsFactors=FALSE,header=T,na.strings = c("NA"))
 library(data.table)
+```
+
+```
+## data.table 1.10.0
+```
+
+```
+##   The fastest way to learn (by data.table authors): https://www.datacamp.com/courses/data-analysis-the-data-table-way
+```
+
+```
+##   Documentation: ?data.table, example(data.table) and browseVignettes("data.table")
+```
+
+```
+##   Release notes, videos and slides: http://r-datatable.com
+```
+
+```r
 setDT(activity)
 ```
 
 Here is a Histogram of the Total No. of steps taken per day
 
+
+```r
+hist(activity[,.(steps_total_per_day = sum(steps,na.rm=T)),by=date][,steps_total_per_day], main="Histogram of Total no. of Steps per day", xlab = "Total No. of Steps per day")
+```
+
 ![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.png)
 
 Here is the Mean Total No. of Steps taken per day
 
+
+```r
+activity[,.(mean_steps_per_day = mean(steps,na.rm=T)),by=date][]
+```
 
 ```
 ##           date mean_steps_per_day
@@ -85,6 +113,10 @@ Here is the Mean Total No. of Steps taken per day
 Here is the Median Total No. of Steps taken per day
 
 
+```r
+activity[,.(median_steps_per_day = median(steps,na.rm=T)),by=date][]
+```
+
 ```
 ##           date median_steps_per_day
 ##  1: 2012-10-01                   NA
@@ -154,11 +186,20 @@ Here is the Median Total No. of Steps taken per day
 
 Here is a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis):
 
+
+```r
+plot(unique(activity[,interval]),activity[,.(avg_no_of_steps_per_interval = mean(steps,na.rm=TRUE)),by=interval][,avg_no_of_steps_per_interval], type="l", xlab = "5 minute interval", ylab = "Average No. of Steps")
+```
+
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png)
 
 -------------
 The 5-minute interval, on average across all the days in the dataset, is internal No. 835 and the average no. of steps is 206
 
+
+```r
+activity[,.(avg_no_of_steps_per_interval = mean(steps,na.rm=TRUE)),by=interval] [order(-avg_no_of_steps_per_interval)] [1,]
+```
 
 ```
 ##    interval avg_no_of_steps_per_interval
@@ -171,6 +212,10 @@ Imputing missing values
 
 The total number of rows with missing values in the dataset are 2304:
 
+
+```r
+activity[,.N] - sum(complete.cases(activity))
+```
 
 ```
 ## [1] 2304
@@ -194,6 +239,11 @@ sum(complete.cases(activity_imputed_final))
 
 The histogram of the total number of steps taken each day after imputing looks like below:
 
+
+```r
+hist(activity_imputed_final[,.(total_steps_per_day = sum(steps)),by=date][,total_steps_per_day],main="Histogram of Total No. of Steps per day post imputation",xlab="Total No. of Steps per day")
+```
+
 ![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png)
 
 After imputation, the histogram looks more symmetric. Before Imputation, it was skewed to the left
@@ -201,6 +251,10 @@ After imputation, the histogram looks more symmetric. Before Imputation, it was 
 
 After Imputation, the average no. of steps per day is shown below:
 
+
+```r
+activity_imputed_final[,.(avg_steps_per_day = mean(steps)), by=date][]
+```
 
 ```
 ##           date avg_steps_per_day
@@ -270,6 +324,10 @@ After Imputation, the average no. of steps per day is shown below:
 
 median steps per day:
 
+
+```r
+activity_imputed_final[,.(median_steps_per_day = median(steps)), by=date][]
+```
 
 ```
 ##           date median_steps_per_day
@@ -342,6 +400,15 @@ median steps per day:
 Below is the Comparision of Average No. of steps per day before and after Imputation:
 
 
+```r
+mean_no_of_steps_per_day_before_imputation = activity[,.(mean_steps_per_day = mean(steps,na.rm=T)),by=date]
+mean_no_of_steps_per_day_before_imputation = mean_no_of_steps_per_day_before_imputation[, date_new := as.POSIXct(date,format="%Y-%m-%d")]
+mean_no_of_steps_per_day_after_imputation = activity_imputed_final[,.(mean_steps_per_day = mean(steps)),by=date]
+mean_no_of_steps_per_day_after_imputation = mean_no_of_steps_per_day_after_imputation[, date_new := as.POSIXct(date,format="%Y-%m-%d")]
+mean_no_of_steps_per_day_diff = merge(mean_no_of_steps_per_day_before_imputation, mean_no_of_steps_per_day_after_imputation, by="date_new", all.x=T)
+mean_no_of_steps_per_day_diff[, ':=' (date.x = NULL, date.y = NULL)][]
+```
+
 ```
 ##       date_new mean_steps_per_day.x mean_steps_per_day.y
 ##  1: 2012-10-01                  NaN           37.3825996
@@ -413,6 +480,15 @@ After Imputation, we now see the Avg no. of steps per day for all days, before I
 
 Below is the Comparision of Median No. of steps per day before and after Imputation:
 
+
+```r
+median_no_of_steps_per_day_before_imputation = activity[,.(median_steps_per_day = median(steps,na.rm=T)),by=date]
+median_no_of_steps_per_day_before_imputation = median_no_of_steps_per_day_before_imputation[, date_new := as.POSIXct(date,format="%Y-%m-%d")]
+median_no_of_steps_per_day_after_imputation = activity_imputed_final[,.(median_steps_per_day = median(steps)),by=date]
+median_no_of_steps_per_day_after_imputation = median_no_of_steps_per_day_after_imputation[, date_new := as.POSIXct(date,format="%Y-%m-%d")]
+median_no_of_steps_per_day_diff = merge(median_no_of_steps_per_day_before_imputation, median_no_of_steps_per_day_after_imputation, by="date_new", all.x=T)
+median_no_of_steps_per_day_diff[, ':=' (date.x = NULL, date.y = NULL)][]
+```
 
 ```
 ##       date_new median_steps_per_day.x median_steps_per_day.y
@@ -487,7 +563,17 @@ Weekdays and Weekends Comparision
 
 Comparision of Average no. of steps per interval is shown in the chart below
 
-![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13-1.png)
+
+```r
+activity_imputed_final[, ':=' (day_of_the_week = ifelse(weekdays(as.POSIXct(date,'%Y-%m-%d')) %in% c("Monday","Tuesday","Wednesday","Thursday","Friday"),"weekday", "weekend" ))]
+activity_imputed_final$day_of_the_week <- as.factor(activity_imputed_final$day_of_the_week)
+activity_by_day_of_the_week = activity_imputed_final[,.(mean_steps_per_interval = mean(steps)),by=.(interval,day_of_the_week)]
+qplot(interval, mean_steps_per_interval, data=activity_by_day_of_the_week, facets = .~day_of_the_week) + geom_line() + ggtitle('Comparision of Average Steps per Interval for Weekdays and Weekends')
+```
+
+```
+## Error in eval(expr, envir, enclos): could not find function "qplot"
+```
 
 On Weekdays , around 8AM , maximum no. of steps is more than 225. This is the only peak in Weekdays. In Weekend, Peak is close to 170 steps in the morning and also multiple peaks close to this
 through out the day.

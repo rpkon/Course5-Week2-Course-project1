@@ -10,33 +10,33 @@ setDT(activity)
 
 Here is a Histogram of the Total No. of steps taken per day
 
-``` {r  , echo=FALSE}
+``` {r  , echo=TRUE}
 hist(activity[,.(steps_total_per_day = sum(steps,na.rm=T)),by=date][,steps_total_per_day], main="Histogram of Total no. of Steps per day", xlab = "Total No. of Steps per day")
 ```
 
 Here is the Mean Total No. of Steps taken per day
 
-``` {r  , echo=FALSE}
+``` {r  , echo=TRUE}
 activity[,.(mean_steps_per_day = mean(steps,na.rm=T)),by=date][]
 ```
 
 Here is the Median Total No. of Steps taken per day
 
-``` {r , echo=FALSE}
+``` {r , echo=TRUE}
 activity[,.(median_steps_per_day = median(steps,na.rm=T)),by=date][]
 ```
 
 
 Here is a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis):
 
-``` {r , echo=FALSE}
+``` {r , echo=TRUE}
 plot(unique(activity[,interval]),activity[,.(avg_no_of_steps_per_interval = mean(steps,na.rm=TRUE)),by=interval][,avg_no_of_steps_per_interval], type="l", xlab = "5 minute interval", ylab = "Average No. of Steps")
 ```
 
 -------------
 The 5-minute interval, on average across all the days in the dataset, is internal No. 835 and the average no. of steps is 206
 
-``` {r , echo=FALSE}
+``` {r , echo=TRUE}
 activity[,.(avg_no_of_steps_per_interval = mean(steps,na.rm=TRUE)),by=interval] [order(-avg_no_of_steps_per_interval)] [1,]
 ```
 
@@ -46,7 +46,7 @@ Imputing missing values
 
 The total number of rows with missing values in the dataset are 2304:
 
-``` {r , echo=FALSE}
+``` {r , echo=TRUE}
 activity[,.N] - sum(complete.cases(activity))
 ```
 
@@ -63,7 +63,7 @@ sum(complete.cases(activity_imputed_final))
 
 The histogram of the total number of steps taken each day after imputing looks like below:
 
-``` {r , echo=FALSE}
+``` {r , echo=TRUE}
 hist(activity_imputed_final[,.(total_steps_per_day = sum(steps)),by=date][,total_steps_per_day],main="Histogram of Total No. of Steps per day post imputation",xlab="Total No. of Steps per day")
 ```
 
@@ -72,13 +72,13 @@ After imputation, the histogram looks more symmetric. Before Imputation, it was 
 
 After Imputation, the average no. of steps per day is shown below:
 
-``` {r , echo=FALSE}
+``` {r , echo=TRUE}
 activity_imputed_final[,.(avg_steps_per_day = mean(steps)), by=date][]
 ```
 
 median steps per day:
 
-``` {r , echo=FALSE}
+``` {r , echo=TRUE}
 activity_imputed_final[,.(median_steps_per_day = median(steps)), by=date][]
 ```
 
@@ -86,7 +86,7 @@ activity_imputed_final[,.(median_steps_per_day = median(steps)), by=date][]
 
 Below is the Comparision of Average No. of steps per day before and after Imputation:
 
-``` {r , echo=FALSE}
+``` {r , echo=TRUE}
 mean_no_of_steps_per_day_before_imputation = activity[,.(mean_steps_per_day = mean(steps,na.rm=T)),by=date]
 mean_no_of_steps_per_day_before_imputation = mean_no_of_steps_per_day_before_imputation[, date_new := as.POSIXct(date,format="%Y-%m-%d")]
 mean_no_of_steps_per_day_after_imputation = activity_imputed_final[,.(mean_steps_per_day = mean(steps)),by=date]
@@ -100,7 +100,7 @@ After Imputation, we now see the Avg no. of steps per day for all days, before I
 
 Below is the Comparision of Median No. of steps per day before and after Imputation:
 
-``` {r , echo=FALSE}
+``` {r , echo=TRUE}
 median_no_of_steps_per_day_before_imputation = activity[,.(median_steps_per_day = median(steps,na.rm=T)),by=date]
 median_no_of_steps_per_day_before_imputation = median_no_of_steps_per_day_before_imputation[, date_new := as.POSIXct(date,format="%Y-%m-%d")]
 median_no_of_steps_per_day_after_imputation = activity_imputed_final[,.(median_steps_per_day = median(steps)),by=date]
@@ -116,7 +116,7 @@ Weekdays and Weekends Comparision
 
 Comparision of Average no. of steps per interval is shown in the chart below
 
-``` {r , echo=FALSE, warning=FALSE, message=FALSE}
+``` {r , echo=TRUE, warning=FALSE, message=FALSE}
 activity_imputed_final[, ':=' (day_of_the_week = ifelse(weekdays(as.POSIXct(date,'%Y-%m-%d')) %in% c("Monday","Tuesday","Wednesday","Thursday","Friday"),"weekday", "weekend" ))]
 activity_imputed_final$day_of_the_week <- as.factor(activity_imputed_final$day_of_the_week)
 activity_by_day_of_the_week = activity_imputed_final[,.(mean_steps_per_interval = mean(steps)),by=.(interval,day_of_the_week)]
